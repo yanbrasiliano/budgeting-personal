@@ -119,7 +119,7 @@
         </div>
         <div class="col-md-6">
           <select class="form-control" id="tipo">
-            <option>Type</option>
+            <option value="">Type</option>
             <option value="1">Food</option>
             <option value="2">Education</option>
             <option value="3">Recreation</option>
@@ -149,7 +149,11 @@
         </div>
 
         <div class="col-md-2 d-flex justify-content-end">
-          <button type="button" class="btn btn-primary">
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="searchExpenses()"
+          >
             <i class="fas fa-search"></i>
           </button>
         </div>

@@ -45,14 +45,53 @@ class Database {
       if (expense === null) {
         continue;
       }
+      expense.id = i;
       expenses.push(expense);
     }
-    console.log(expenses);
+
     return expenses;
   }
+
+  searchExpenses(expense) {
+    let expensesFilters = [];
+    expensesFilters = this.listExpenses();
+
+    if (expense.year != "") {
+      expensesFilters = expensesFilters.filter((e) => e.year == expense.year);
+    }
+
+    if (expense.month != "") {
+      expensesFilters = expensesFilters.filter((e) => e.month == expense.month);
+    }
+
+    if (expense.day != "") {
+      expensesFilters = expensesFilters.filter((e) => e.day == expense.day);
+    }
+
+    if (expense.type != "") {
+      expensesFilters = expensesFilters.filter((e) => e.type == expense.type);
+    }
+
+    if (expense.description != "") {
+      expensesFilters = expensesFilters.filter(
+        (e) => e.description == expense.description
+      );
+    }
+
+    if (expense.value != "") {
+      expensesFilters = expensesFilters.filter((e) => e.value == expense.value);
+    }
+
+    return expensesFilters;
+  }
+
+  remove(id) {
+    localStorage.removeItem(id);
+  }
 }
-//Events
+//Variables Initials.
 let db = new Database();
+
 //Functions
 
 function register() {
@@ -72,9 +111,17 @@ function register() {
     value.value
   );
 
-  expense.dataValidate() ? db.save(expense) & accept() : error();
+  expense.dataValidate() ? db.save(expense) & accept() & cleanUp() : error();
 }
 
+function cleanUp() {
+  document.getElementById("ano").value = "";
+  document.getElementById("mes").value = "";
+  document.getElementById("dia").value = "";
+  document.getElementById("tipo").value = "";
+  document.getElementById("descricao").value = "";
+  document.getElementById("valor").value = "";
+}
 function error() {
   $("#registerModal").modal("show");
   document.getElementById("modal-title").innerHTML = "Data saving error.";
@@ -105,12 +152,13 @@ function save(expense) {
   localStorage.setItem(expense, JSON.stringify(expense));
 }
 
-function loadExpenses() {
-  let expenses = Array();
+function loadExpenses(expenses = Array(), filters = false) {
+  if (expenses.length == 0 && filters == false) {
+    expenses = db.listExpenses();
+  }
 
-  expenses = db.listExpenses();
   let listExpenses = document.getElementById("expensesList");
-  console.log(expenses);
+  listExpenses.innerHTML = "";
 
   expenses.forEach(function (item) {
     let line = listExpenses.insertRow();
@@ -137,6 +185,34 @@ function loadExpenses() {
     line.insertCell(2).innerHTML = item.description;
     line.insertCell(3).innerHTML = item.value;
 
-		
+    let btn = document.createElement("button");
+    btn.className = "btn btn-danger";
+    btn.innerHTML = '<i class="fa fa-times"></i>';
+    btn.id = item.id;
+    btn.onclick = () => {
+      db.remove(btn.id);
+      window.location.reload();
+    };
+    line.insertCell(4).append(btn);
   });
+}
+
+function searchExpenses() {
+  let year = document.getElementById("ano");
+  let month = document.getElementById("mes");
+  let day = document.getElementById("dia");
+  let type = document.getElementById("tipo");
+  let description = document.getElementById("descricao");
+  let value = document.getElementById("valor");
+
+  let expense = new Expense(
+    year.value,
+    month.value,
+    day.value,
+    type.value,
+    description.value,
+    value.value
+  );
+  let expenses = db.searchExpenses(expense);
+  this.loadExpenses(expenses, true);
 }
