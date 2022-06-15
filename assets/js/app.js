@@ -153,14 +153,18 @@ function save(expense) {
 }
 
 function loadExpenses(expenses = Array(), filters = false) {
+
   if (expenses.length == 0 && filters == false) {
     expenses = db.listExpenses();
   }
 
   let listExpenses = document.getElementById("expensesList");
   listExpenses.innerHTML = "";
+  let total = 0;
 
   expenses.forEach(function (item) {
+    total += Number(item.value);
+		value = "R$" + total;
     let line = listExpenses.insertRow();
     line.insertCell(0).innerHTML = `${item.day}/${item.month}/${item.year}`;
 
@@ -195,6 +199,7 @@ function loadExpenses(expenses = Array(), filters = false) {
     };
     line.insertCell(4).append(btn);
   });
+  document.getElementById("total").innerHTML = `Total: ${value}`;
 }
 
 function searchExpenses() {
